@@ -1,37 +1,32 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
 using UnityEngine.SceneManagement;
+using System;
 
 public class PlayerController : MonoBehaviour
 {
-    public TMP_Text ScoreTxt;
-    public GameObject panelGameOver;
 
     private Rigidbody2D rb;
 
-    bool isGrounded = false;
-    bool isAlive = true;
-    int Score;
+    public float jumpSpeed;
+    public float moveSpeed;
 
-    public GlobalVariable global;
+    // public GlobalVariable global;
+    public Action<Collision2D> onCollisionEnter;
 
-    public AudioSource Cherry;
-    public AudioSource Jump;
-    public AudioSource Dead;
-    public AudioSource bgSong;
+    public GameObject panelGameOver;
 
-    public int getPlayerScore()
-    {
-        return Score;
-    }
+    public GameObject customer;
+
+    public AudioSource audioMoney;
+    public AudioSource audioJump;
+    public AudioSource audioDead;
+    public AudioSource bgSound;
+
+    private bool faceRight = true;
 
     // Start is called before the first frame update
-    private void Awake()
-    {
-        Score = 0;
-    }
 
     void Start()
     {
@@ -40,120 +35,56 @@ public class PlayerController : MonoBehaviour
 
     // Update is called once per frame
     void Update()
-    {
-        if (isAlive)
+    {            
+        Vector3 currPosition = transform.position;
+        currPosition.x = transform.position.x;
+        currPosition.y = transform.position.y + 0.75f;
+        
+        if (this.transform.position.y < -6)
         {
-            float hDirection = Input.GetAxis("Horizontal");
+            panelGameOver.SetActive(true);
+        }
+    }
 
-            //! Jika menekan key A maka rigidbody bergerak ke kiri.
-            // if(Input.GetKey(KeyCode.A)) -> switched key to using unity Input GetAxis.
-            if (hDirection < 0)
+    public void Move(float direction) 
+    {
+        if (direction < 0)
+        {
+            if (faceRight == true)
             {
-                //! bergerak ke kiri dengan speed 5.
-                rb.velocity = new Vector2(-5, rb.velocity.y);
-
-                //! flip sprite menghadap kiri saat menekan A.
-                transform.localScale = new Vector2(-1, 1);
-            }
-
-            //! Jika menekan key D maka rigidbody bergerak ke kanan.
-            // else if (Input.GetKey(KeyCode.D)) -> switched key to using unity Input GetAxis.
-            else if (hDirection > 0)
-            {
-                //! bergerak ke kanan dengan speed 5.
-                rb.velocity = new Vector2(5, rb.velocity.y);
-
-                //! flip sprite menghadap kanan saat menekan D.
-                transform.localScale = new Vector2(1, 1);
-            }
-            else
-            {
-                //
-            }
-
-            //! Jika menekan key spasi maka rigidbody melompat keatas.
-            if (Input.GetButtonDown("Jump"))
-            {
-                if (isGrounded == true)
-                {
-                    rb.velocity = new Vector2(rb.velocity.x, 10f);
-                    Jump.Play();
-                    isGrounded = false;
-                }
+                faceRight = false;
+                transform.localRotation = Quaternion.Euler(0, 180, 0);
             }
         }
+        else if (direction > 0)
+        {
+            if (faceRight == false)
+            {
+                faceRight = true;
+                transform.localRotation = Quaternion.Euler(0, 0, 0);
+            }
+        }
+        Vector3 velocity = rb.velocity;
+        velocity.x = direction * moveSpeed;
+        rb.velocity = velocity;
+    }
 
+    public void Jump()
+    {
+        Vector3 velocity = rb.velocity;
+        velocity.y = moveSpeed;
+        rb.velocity = velocity;
+        audioJump.Play();
     }
 
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        //! Mendeteksi posisi karakter jika telah menyentuh tanah setelah melompat (agar melompat hanya 1x tiap klik key Space)
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Enemy"))
         {
-            if (isGrounded == false)
-            {
-                isGrounded = true;
-            }
-        }
-
-       /*     if (collision.gameObject.CompareTag("Enemies"))
-            {
-                Destroy(collision.gameObject);
-            }*/
-
-        //! Skor +10 setiap menyentuh objek Cherry
-        if (collision.gameObject.CompareTag("Collectable"))
-        {
-            //! Hilangkan objek Cherry yang telah disentuh
-            Destroy(collision.gameObject);
-            //! Tambahkan skor +10 setiap 1x objek Cherry didapat
-            Score += 10;
-            ScoreTxt.text = "Score: " + Score.ToString();
-            Cherry.Play();
-        }
-
-        //! Game Over setiap menabrak musuh sebagai objek rintangan (Elang / Tikus / Duri)
-        if (collision.gameObject.CompareTag("Enemies"))
-        {
-            //! Stop Background Music Playing Game
-            bgSong.Stop();
-            //! Play Background Music Game Over
-            Dead.Play();
-            //! Nyawa habis
-            isAlive = false;
-            //! Munculkan Panel Game Over
+            bgSound.Stop();
             panelGameOver.SetActive(true);
-            //! Untuk mengetahui bahwa baru saja bermain di Level Easy, komparasi nilai tertingginya
-            if (SceneManager.GetActiveScene().name == "LevelEasy")
-            {
-                global.setSkorEasy(getPlayerScore());
-            }
-            //! Untuk mengetahui bahwa baru saja bermain di Level Hard, komparasi nilai tertingginya
-            else if(SceneManager.GetActiveScene().name == "LevelHard")
-            {
-                global.setSkorHard(getPlayerScore());
-            }
         }
-
-        //! Menang setiap mencapai Rumah di ujung kanan Map
-        if (collision.gameObject.CompareTag("Rumah"))
-        {
-            //! Stop Background Music Playing Game
-            bgSong.Stop();
-
-            //! Untuk mengetahui bahwa baru saja bermain di Level Easy, komparasi nilai tertingginya
-            if (SceneManager.GetActiveScene().name == "LevelEasy")
-            {
-                global.setSkorEasy(getPlayerScore());
-            }
-            //! Untuk mengetahui bahwa baru saja bermain di Level Hard, komparasi nilai tertingginya
-            else if (SceneManager.GetActiveScene().name == "LevelHard")
-            {
-                global.setSkorHard(getPlayerScore());
-            }
-
-            SceneManager.LoadScene("EndGame");
-        }
+        onCollisionEnter.Invoke(collision);
     }
 }

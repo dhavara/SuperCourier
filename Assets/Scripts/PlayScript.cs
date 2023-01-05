@@ -5,27 +5,16 @@ using UnityEngine.SceneManagement;
 
 public class PlayScript : MonoBehaviour
 {
+    private GameManager gameManager;
     public int level;
-    // Start is called before the first frame update
-    void Start()
+    
+    void Awake()
     {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
+        gameManager = FindObjectOfType<GameManager>();
     }
     
-    //! Level Easy (Pindahkan ke scene Level Easy)
-    public void play()
+    public void Play()
     {
-        SceneManager.LoadScene("Level_"+level);
-    }
-
-    public void Exit()
-    {
-        Application.Quit();
+        gameManager.LevelSelectorEvent(level);
     }
 }

@@ -6,31 +6,17 @@ using UnityEngine.SceneManagement;
 public class GameOverScript : MonoBehaviour
 {
     
-    // Start is called before the first frame update
-    void Start()
+    private GameManager gameManager;
+    private void Awake()
     {
-   
-    }
-    // Update is called once per frame
-    void Update()
-    {
-        
+        gameManager = FindObjectOfType<GameManager>();
     }
 
-    //! Play Again (Pindahkan ke scene Level Easy)
-    public void Play1()
+    public void Restart()
     {
-        
-        SceneManager.LoadScene(2);
+        gameManager.RestartLevel();
     }
 
-    //! Play Again (Pindahkan ke scene Level Hard)
-    public void Play2()
-    {
-        SceneManager.LoadScene(3);
-    }
-
-    //! Menu (Pindahkan ke scene Menu)
     public void Menu()
     {
         SceneManager.LoadScene(0);
