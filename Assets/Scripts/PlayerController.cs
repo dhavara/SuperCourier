@@ -10,9 +10,6 @@ public class PlayerController : MonoBehaviour
     public GameObject panelGameOver;
 
     private Rigidbody2D rb;
-    private Animator anim;
-    private enum State {idle, running, jumping, falling}
-    private State state = State.idle;
 
     bool isGrounded = false;
     bool isAlive = true;
@@ -39,7 +36,6 @@ public class PlayerController : MonoBehaviour
     void Start()
     {
         rb = GetComponent<Rigidbody2D>();
-        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -81,52 +77,12 @@ public class PlayerController : MonoBehaviour
                 if (isGrounded == true)
                 {
                     rb.velocity = new Vector2(rb.velocity.x, 10f);
-                    state = State.jumping;
                     Jump.Play();
                     isGrounded = false;
                 }
             }
-
-            VelocityState();
-            anim.SetInteger("state", (int)state);
         }
 
-        void VelocityState()
-        {
-            if (state == State.jumping)
-            {
-                if (rb.velocity.y < .1f)
-                {
-                    //! Falling
-                    state = State.falling;
-                }
-            }
-
-            else if (state == State.falling)
-            {
-                if (isGrounded == true)
-                {
-                    state = State.idle;
-                }
-            }
-
-            else if ((rb.velocity.y) < -4f)
-            {
-                state = State.falling;
-            }
-
-            else if (Mathf.Abs(rb.velocity.x) > 2f)
-            {
-                //! Moving
-                state = State.running;
-            }
-
-            else
-            {
-                //! Idling
-                state = State.idle;
-            }
-        }
     }
 
 

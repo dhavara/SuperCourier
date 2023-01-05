@@ -5,6 +5,7 @@ using UnityEngine.SceneManagement;
 
 public class PlayScript : MonoBehaviour
 {
+    public int level;
     // Start is called before the first frame update
     void Start()
     {
@@ -18,18 +19,11 @@ public class PlayScript : MonoBehaviour
     }
     
     //! Level Easy (Pindahkan ke scene Level Easy)
-    public void easyGame()
+    public void play()
     {
-        SceneManager.LoadScene("Level_1");
+        SceneManager.LoadScene("Level_"+level);
     }
 
-    //! Level Hard (Pindahkan ke scene Level Hard)
-    //public void hardGame()
-    //{
-       // SceneManager.LoadScene("LevelHard");
-    //}
-
-    //! Exit (Keluar dari aplikasi)
     public void Exit()
     {
         Application.Quit();
