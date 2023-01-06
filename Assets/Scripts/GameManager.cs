@@ -164,6 +164,7 @@ public class GameManager : MonoBehaviour
             playerController.customer.SetActive(true);
             if (isDelivered && isJerrycan)
             {
+                isDelivered = false;
                 if (indexedLevel == 5 && unlockedLevel == 5)
                 {
                     SceneManager.LoadScene("EndGame");
