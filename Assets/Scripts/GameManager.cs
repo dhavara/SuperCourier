@@ -131,7 +131,7 @@ public class GameManager : MonoBehaviour
 
     private void PlayerController_onCollisionEnter(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Ground"))
+        if (collision.gameObject.CompareTag("Ground") || !collision.gameObject.CompareTag("Enemy"))
         {
             jumpCount = 0;
         }
@@ -156,6 +156,7 @@ public class GameManager : MonoBehaviour
 
         if (collision.gameObject.CompareTag("Enemy"))
         {
+            audioSource.Stop();
             playerController.audioDead.Play();
         }
 
